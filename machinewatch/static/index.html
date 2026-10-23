@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MachineWatch · Engine health</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="/">◈ <span>MachineWatch</span></a><span class="tag">LOCAL EXPERIMENT</span></header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">PREDICTIVE MAINTENANCE / FD001</p><h1>A closer look at engine health.</h1><p class="muted">Replay recorded sensor readings and see how the remaining-life estimate changes.</p></div><span class="dataset">NASA C-MAPSS<br><strong>Simulated engine data</strong></span></div>
+    <div id="error" role="alert" hidden></div>
+    <section class="controls" aria-label="Replay controls">
+      <div><label for="engine">Held-out engine</label><select id="engine" disabled><option>Loading…</option></select></div>
+      <button id="play" disabled>Play history</button><button id="reset" class="secondary" disabled>Reset</button>
+      <div class="slider"><label for="cycle">Operating cycle <strong id="cycleLabel">—</strong></label><input id="cycle" type="range" min="1" max="2" value="1" disabled></div>
+    </section>
+    <section class="metrics" aria-label="Current estimate">
+      <article><p class="eyebrow">ESTIMATED LIFE LEFT</p><div class="number" id="remaining">—</div><p class="muted">operating cycles · model estimate</p></article>
+      <article><p class="eyebrow">MAINTENANCE FLAG</p><div class="number status" id="status">—</div><p class="muted">Warning at 30 predicted cycles or fewer</p></article>
+      <article><p class="eyebrow">HELD-OUT TEST ERROR</p><div class="number" id="mae">—</div><p class="muted">cycles · mean absolute error</p></article>
+    </section>
+    <section class="panel"><div class="panel-heading"><div><h2>Remaining life over time</h2><p class="muted">Only readings up to the selected cycle are shown.</p></div><label class="checkbox"><input type="checkbox" id="truth"> Show actual remaining life</label></div>
+      <div id="lifeChart" class="chart"></div>
+      <div class="legend"><span class="green">● Predicted</span><span class="gray">● Actual (when enabled)</span><span class="amber">┄ Warning threshold</span></div>
+      <p class="note">Actual remaining life is known from the dataset after the experiment. It is never given to the model.</p>
+    </section>
+    <div class="lower">
+      <section class="panel"><div class="panel-heading"><div><h2>Sensor trend</h2><p class="muted">Raw channel values from this engine.</p></div><label>Channel <select id="sensor"><option value="sensor_4">Sensor 4</option><option value="sensor_11">Sensor 11</option></select></label></div><div id="sensorChart" class="chart small"></div></section>
+      <section class="panel"><h2>What this model can tell us</h2><p>The model estimates remaining operating cycles from current readings and recent sensor trends.</p><p>A maintenance flag is a threshold on that estimate. It is <strong>not a probability of failure</strong>.</p><div class="model-info"><span class="muted">Selected model</span><strong id="model">—</strong></div><p class="note">Historical replay of a simulation. These results do not establish accuracy on real engines.</p></section>
+    </div>
+    <section class="panel"><div class="panel-heading"><div><h2>Model comparison</h2><p class="muted">Selected by validation error, then evaluated on separate engines. Lower MAE is better.</p></div><span class="tag">60 TRAIN / 20 VALIDATION / 20 TEST</span></div><div class="table-wrap"><table><thead><tr><th>Model</th><th>Validation MAE</th><th>Test MAE</th><th>Warning precision</th><th>Warning recall</th></tr></thead><tbody id="comparison"></tbody></table></div><p class="note">Precision: how often a flagged cycle really has ≤30 cycles left. Recall: how many such cycles were flagged. Test metrics use all recorded cycles; longer histories contribute more rows.</p></section>
+    <footer>MachineWatch <span>Python · SQLite · scikit-learn</span></footer>
+  </main>
+</body>
+</html>
